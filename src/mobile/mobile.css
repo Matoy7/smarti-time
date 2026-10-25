@@ -228,19 +228,21 @@
 }
 
 /*
- * Pulse (clock-in only): two soft green discs grow out from behind the orb and fade, half a cycle
+ * Pulse (דווח כניסה and דווח יציאה): two soft green discs grow out from behind the orb and fade, half a cycle
  * apart. Only the rings move — the button keeps its size and position. They sit behind the orb
- * (the card is their stacking context), ignore taps and reach 10% of the orb's size past its edge (15–21px),
- * within the gaps around it, so they never cover the clock or the manual-entry link and take no layout.
+ * (the card is their stacking context), ignore taps and take no layout. They reach 10% of the orb's size
+ * past its edge (15–21px), but never more than the gap around it, so they don't touch the clock, the
+ * working status or the manual-entry link on any screen.
  */
 .m-punch-card {
   isolation: isolate;
 }
 
-.m-state-idle .punch-orb:not(:disabled)::before,
-.m-state-idle .punch-orb:not(:disabled)::after {
+.m-punch-actions .punch-orb:not(:disabled)::before,
+.m-punch-actions .punch-orb:not(:disabled)::after {
   position: absolute;
   z-index: -1;
+  --orb-pulse-reach: min(calc(var(--punch-action-size) * 0.1), calc(var(--m-gap) - 2px));
   inset: 0;
   border-radius: inherit;
   background: var(--orb-pulse-color, var(--color-primary-action));
@@ -250,7 +252,7 @@
   animation: orb-pulse 2.8s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
 }
 
-.m-state-idle .punch-orb:not(:disabled)::after {
+.m-punch-actions .punch-orb:not(:disabled)::after {
   animation-delay: 1.4s;
 }
 
@@ -261,24 +263,24 @@
 
 @keyframes orb-pulse {
   0% {
+    inset: 0;
     opacity: 0.22;
-    transform: scale(1);
   }
   100% {
+    inset: calc(-1 * var(--orb-pulse-reach));
     opacity: 0;
-    transform: scale(1.2);
   }
 }
 
 /* Steady while sending, and no continuous motion when reduced motion is requested. */
-.m-state-idle .punch-orb.is-loading::before,
-.m-state-idle .punch-orb.is-loading::after {
+.m-punch-actions .punch-orb.is-loading::before,
+.m-punch-actions .punch-orb.is-loading::after {
   animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .m-state-idle .punch-orb:not(:disabled)::before,
-  .m-state-idle .punch-orb:not(:disabled)::after {
+  .m-punch-actions .punch-orb:not(:disabled)::before,
+  .m-punch-actions .punch-orb:not(:disabled)::after {
     animation: none;
   }
 }
