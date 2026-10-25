@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { BellIcon, ChevronIcon, DocumentCheckIcon, InfoIcon } from '@/components/icons'
+import { AlertIcon, BellIcon, ChevronIcon, DocumentCheckIcon, InfoIcon } from '@/components/icons'
+import { Button } from '@/components/ui'
 import { ApprovalBadge } from '@/components/team/ApprovalBadge'
 import { ABSENCE_ICON, ABSENCE_LABEL } from '@/components/absence/absenceTypes'
 import { formatDate, formatDuration, timeOf, type DayRow } from '@/lib/myReports'
@@ -27,13 +27,10 @@ export function MonthNav({ month, previous, next }: { month: string; previous?: 
   )
 }
 
-/** Summary figure: tinted card with an icon, a label, the value and an optional line under it. */
-export function SummaryCard({ tone, icon, label, value, sub }: { tone: 'green' | 'warm'; icon: ReactNode; label: string; value: string; sub?: string }) {
+/** Summary figure: tinted card with a label, the value and an optional line under it. */
+export function SummaryCard({ tone, label, value, sub }: { tone: 'green' | 'warm'; label: string; value: string; sub?: string }) {
   return (
     <div className={`mr-stat mr-stat-${tone}`}>
-      <span className="mr-stat-icon" aria-hidden="true">
-        {icon}
-      </span>
       <div className="mr-stat-copy">
         <span className="mr-stat-label text-label">{label}</span>
         <strong className="mr-stat-value" dir="ltr">
@@ -45,8 +42,28 @@ export function SummaryCard({ tone, icon, label, value, sub }: { tone: 'green' |
   )
 }
 
-/** The month's attendance report approval: one status for the whole month. */
-export function MonthlyApproval({ month, status, layout, remindedOn }: { month: string; status: ApprovalStatus | null; layout: 'row' | 'stack'; remindedOn?: string }) {
+type Submission = {
+  /** The month can be sent for approval now (not yet submitted, or rejected) */
+  canSubmit?: boolean
+  onSubmit?: () => void
+  sending?: boolean
+  /** What must be fixed before sending (shown after a send attempt) */
+  problems?: string[]
+  sendError?: boolean
+}
+
+/** The month's attendance report approval: one status for the whole month, and "שלח לאישור" when it's due. */
+export function MonthlyApproval({
+  month,
+  status,
+  layout,
+  remindedOn,
+  canSubmit,
+  onSubmit,
+  sending,
+  problems = [],
+  sendError,
+}: { month: string; status: ApprovalStatus | null; layout: 'row' | 'stack'; remindedOn?: string } & Submission) {
   return (
     <section className={`mr-approval mr-approval-${layout}`} aria-labelledby="mr-approval-title">
       <span className="mr-approval-icon" aria-hidden="true">
@@ -58,7 +75,31 @@ export function MonthlyApproval({ month, status, layout, remindedOn }: { month: 
         </h2>
         <span className="text-caption text-secondary">{formatMonth(month)}</span>
       </div>
-      <span className="mr-approval-status">{status ? <ApprovalBadge status={status} /> : <ApprovalBadge status="missing" />}</span>
+      <span className="mr-approval-status" aria-live="polite">
+        {status ? <ApprovalBadge status={status} /> : <ApprovalBadge status="missing" />}
+      </span>
+      {canSubmit && (
+        <Button className="mr-approval-submit" icon={<DocumentCheckIcon size={18} />} onClick={onSubmit} loading={sending}>
+          {sending ? 'שולח…' : status === 'rejected' ? 'שליחה מחדש לאישור' : 'שלח לאישור'}
+        </Button>
+      )}
+      {(problems.length > 0 || sendError) && (
+        <div className="mr-approval-problems sheet-alert text-label" role="alert">
+          <AlertIcon size={18} />
+          {sendError ? (
+            <span>לא הצלחנו לשלוח את הדוח. לא נשלח דבר — נסו שוב.</span>
+          ) : (
+            <div>
+              <strong>לא ניתן לשלוח את הדוח עדיין:</strong>
+              <ul>
+                {problems.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
       {!status && remindedOn && (
         <p className="mr-approval-reminder text-caption" role="status">
           <BellIcon size={16} />

@@ -22,12 +22,6 @@
   padding: var(--space-1-5) var(--space-2);
 }
 
-.m-mr .mr-stat-icon {
-  order: 0;
-  align-self: flex-end;
-  margin-bottom: calc(-1 * var(--space-3)); /* icon in the corner, beside the label */
-}
-
 .m-mr .mr-stat-value {
   font-size: 28px;
   line-height: 36px;
@@ -46,6 +40,12 @@
 
 .mr-approval-stack .mr-approval-status {
   margin: 0;
+}
+
+.mr-approval-stack .mr-approval-submit {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 48px; /* comfortable touch target */
 }
 
 .mr-approval-stack .mr-approval-note {

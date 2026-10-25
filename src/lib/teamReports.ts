@@ -1,4 +1,5 @@
 import { USER } from './profile'
+import { submitsInApp } from './monthlySubmissions'
 
 /**
  * Employee attendance reports and their manager approval status.
@@ -158,7 +159,8 @@ export const employeesIn = (month: string) => EMPLOYEES.filter((e) => isEmployed
 
 export function loadTeamReports(month: string, now = new Date()): TeamReport[] {
   const isCurrent = month === monthKey(now)
-  return employeesIn(month).map((e) => ({ ...e, month, status: demoStatus(e.id, month, isCurrent), requestType: demoRequestType(e.id, month) }))
+  // The signed-in user's report from APP_SUBMISSION_FROM on is a real submission (lib/approvals.ts).
+  return employeesIn(month).filter((e) => !submitsInApp(e.id, month, USER.employeeId)).map((e) => ({ ...e, month, status: demoStatus(e.id, month, isCurrent), requestType: demoRequestType(e.id, month) }))
 }
 
 /** The employee a request belongs to (demo rows use the employee id as the request id). */

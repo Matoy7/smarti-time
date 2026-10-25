@@ -116,16 +116,6 @@
   color: var(--color-text-secondary);
 }
 
-.mr-stat-icon {
-  display: grid;
-  order: 2; /* icon at the end (left in RTL), as in the reference */
-  color: var(--color-accent);
-}
-
-.mr-stat-green .mr-stat-icon {
-  color: var(--color-success);
-}
-
 /* ---- Monthly approval ---- */
 .mr-approval {
   display: grid;
@@ -140,6 +130,30 @@
 
 .mr-approval-row {
   grid-template-columns: auto auto auto 1fr;
+}
+
+/* With "שלח לאישור": icon · title · status · button · note */
+.mr-approval-row:has(.mr-approval-submit) {
+  grid-template-columns: auto auto auto auto 1fr;
+}
+
+.mr-approval-submit {
+  white-space: nowrap;
+}
+
+/* What to fix before sending (or a failed send): full width under the approval line. */
+.mr-approval-problems {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+}
+
+.mr-approval-problems ul {
+  margin: var(--space-0-5) 0 0;
+  padding-inline-start: var(--space-2);
+}
+
+.mr-approval-problems li + li {
+  margin-top: 2px;
 }
 
 .mr-approval-icon {

@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
-import { findEmployee, loadTeamReports, type ApprovalStatus, type TeamReport } from './teamReports'
+import { employeeOf, findEmployee, loadTeamReports, type ApprovalStatus, type TeamReport } from './teamReports'
 import { getAbsences, type Absence } from './absences'
+import { getSubmissions, latestSubmission, type MonthlySubmission } from './monthlySubmissions'
 
 /**
  * Manager decisions (approve / reject) on employees' requests, shared app-wide so every view —
@@ -77,11 +78,26 @@ function absenceRequests(month: string, absences: Absence[], d: Decisions): Team
 }
 
 /** An employee's monthly attendance report status for a month (approved per month, never per day). */
-export function monthlyAttendanceStatus(employeeId: string, month: string, d: Decisions = decisions): ApprovalStatus | null {
-  return reportsFor(month, d, []).find((r) => r.id === employeeId && r.requestType === 'attendance')?.status ?? null
+export function monthlyAttendanceStatus(employeeId: string, month: string, d: Decisions = decisions, submissions: MonthlySubmission[] = getSubmissions()): ApprovalStatus | null {
+  return reportsFor(month, d, [], submissions).find((r) => employeeOf(r) === employeeId && r.requestType === 'attendance')?.status ?? null
 }
 
-/** A month's requests with the manager's decisions applied: the demo reports, then submitted absences. */
-export function reportsFor(month: string, d: Decisions = decisions, absences: Absence[] = getAbsences()): TeamReport[] {
-  return [...loadTeamReports(month).map((r) => ({ ...r, status: d[`${month}:${r.id}`] ?? r.status })), ...absenceRequests(month, absences, d)]
+/** Monthly reports submitted in the app, as approval requests (latest submission per employee). */
+function submittedReports(month: string, submissions: MonthlySubmission[], d: Decisions): TeamReport[] {
+  const ids = [...new Set(submissions.filter((s) => s.month === month).map((s) => s.employeeId))]
+  return ids.flatMap((employeeId) => {
+    const s = latestSubmission(submissions, employeeId, month)
+    const employee = findEmployee(employeeId)
+    if (!s || !employee) return []
+    return [{ ...employee, id: s.id, employeeId, month, requestType: 'attendance' as const, status: d[`${month}:${s.id}`] ?? 'pending' }]
+  })
+}
+
+/** A month's requests with the manager's decisions applied: the demo reports, monthly reports submitted in the app, then absences. */
+export function reportsFor(month: string, d: Decisions = decisions, absences: Absence[] = getAbsences(), submissions: MonthlySubmission[] = getSubmissions()): TeamReport[] {
+  return [
+    ...loadTeamReports(month).map((r) => ({ ...r, status: d[`${month}:${r.id}`] ?? r.status })),
+    ...submittedReports(month, submissions, d),
+    ...absenceRequests(month, absences, d),
+  ]
 }

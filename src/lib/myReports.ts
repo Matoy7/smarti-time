@@ -151,3 +151,26 @@ export function buildMonth({ month, employeeId, recorded, absences, statusOf, no
     absences: mine,
   }
 }
+
+/**
+ * What blocks sending a month's report for approval: a day with a clock-in but no clock-out, and
+ * working days already past (before today) with neither attendance nor an absence report (pending
+ * or approved). Each problem is a Hebrew sentence saying what to fix.
+ */
+export function submissionProblems(model: MonthModel, month: string, now: Date): string[] {
+  const today = dayKey(now)
+  const problems: string[] = []
+  const open = model.rows.filter((r) => r.sessions.some((s) => s.end === null))
+  for (const r of open)
+    problems.push(
+      r.key === today
+        ? `נרשמה כניסה היום (${formatDate(r.key, true)}) בלי יציאה — יש לדווח יציאה לפני השליחה.`
+        : `חסרה שעת יציאה ב-${formatDate(r.key, true)} — יש להשלים אותה בהכנסה ידנית של שעה.`,
+    )
+  const covered = new Set(model.rows.filter((r) => r.sessions.length || r.absence).map((r) => r.key))
+  const missing = monthDates(month)
+    .filter((d) => isWorkday(d) && dayKey(d) < today && !covered.has(dayKey(d)))
+    .map((d) => formatDate(dayKey(d), true))
+  if (missing.length) problems.push(`חסר דיווח נוכחות או היעדרות ל${missing.length === 1 ? 'יום' : 'ימים'}: ${missing.join(', ')}.`)
+  return problems
+}

@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react'
 import { useMyReports } from '@/hooks/useMyReports'
 import { navigate } from '@/lib/router'
-import { CalendarIcon, ChartIcon, ChevronDownIcon, PlusIcon, TargetIcon } from '@/components/icons'
+import { CalendarIcon, ChevronDownIcon, PlusIcon } from '@/components/icons'
 import { ApprovalBadge } from '@/components/team/ApprovalBadge'
 import { AbsenceTypeLabel, DayDetails, MonthNav, MonthlyApproval, SummaryCard, absenceDates, dayNote, dayTimes } from '@/components/myReports/parts'
 import { formatDate, formatDuration, weekdayLetter } from '@/lib/myReports'
@@ -34,12 +34,22 @@ export function MyReportsPage() {
       </div>
 
       <div className="mr-stats">
-        <SummaryCard tone="warm" icon={<CalendarIcon size={22} />} label="ימי עבודה" value={String(m.daysWorked)} sub={`מתוך ${m.workdays} ימי עבודה`} />
-        <SummaryCard tone="warm" icon={<TargetIcon size={22} />} label="יעד חודשי" value={formatDuration(m.targetMs)} />
-        <SummaryCard tone="green" icon={<ChartIcon size={22} />} label="שעות עבודה בפועל" value={formatDuration(m.workedMs)} sub={`מתוך ${formatDuration(m.targetMs)} יעד`} />
+        <SummaryCard tone="warm" label="ימי עבודה" value={String(m.daysWorked)} sub={`מתוך ${m.workdays} ימי עבודה`} />
+        <SummaryCard tone="warm" label="תקן שעות" value={formatDuration(m.targetMs)} />
+        <SummaryCard tone="green" label="שעות עבודה בפועל" value={formatDuration(m.workedMs)} sub={`מתוך ${formatDuration(m.targetMs)} שעות תקן`} />
       </div>
 
-      <MonthlyApproval month={m.month} status={m.approval} layout="row" remindedOn={m.remindedOn} />
+      <MonthlyApproval
+        month={m.month}
+        status={m.approval}
+        layout="row"
+        remindedOn={m.remindedOn}
+        canSubmit={m.canSubmit}
+        onSubmit={m.submit}
+        sending={m.sending}
+        problems={m.problems}
+        sendError={m.sendError}
+      />
 
       <section className="mr-section" aria-labelledby="mr-days-title">
         <h2 id="mr-days-title" className="mr-section-title">

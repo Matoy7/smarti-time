@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMyReports } from '@/hooks/useMyReports'
 import { navigate } from '@/lib/router'
-import { ChartIcon, ChevronDownIcon, ChevronIcon, PlusIcon, TargetIcon } from '@/components/icons'
+import { ChevronDownIcon, ChevronIcon, PlusIcon } from '@/components/icons'
 import { ApprovalBadge } from '@/components/team/ApprovalBadge'
 import { ABSENCE_LABEL } from '@/components/absence/absenceTypes'
 import { AbsenceTypeLabel, DayDetails, MonthNav, MonthlyApproval, SummaryCard, absenceDates, dayNote, dayTimes } from '@/components/myReports/parts'
@@ -33,11 +33,21 @@ export function MobileMyReports() {
         />
 
         <div className="m-mr-stats">
-          <SummaryCard tone="warm" icon={<TargetIcon size={22} />} label="יעד חודשי" value={formatDuration(m.targetMs)} sub={`${m.daysWorked} מתוך ${m.workdays} ימי עבודה`} />
-          <SummaryCard tone="green" icon={<ChartIcon size={22} />} label="שעות עבודה בפועל" value={formatDuration(m.workedMs)} sub={`מתוך ${formatDuration(m.targetMs)} יעד`} />
+          <SummaryCard tone="warm" label="תקן שעות" value={formatDuration(m.targetMs)} sub={`${m.daysWorked} מתוך ${m.workdays} ימי עבודה`} />
+          <SummaryCard tone="green" label="שעות עבודה בפועל" value={formatDuration(m.workedMs)} sub={`מתוך ${formatDuration(m.targetMs)} שעות תקן`} />
         </div>
 
-        <MonthlyApproval month={m.month} status={m.approval} layout="stack" remindedOn={m.remindedOn} />
+        <MonthlyApproval
+          month={m.month}
+          status={m.approval}
+          layout="stack"
+          remindedOn={m.remindedOn}
+          canSubmit={m.canSubmit}
+          onSubmit={m.submit}
+          sending={m.sending}
+          problems={m.problems}
+          sendError={m.sendError}
+        />
 
         <section className="m-mr-section" aria-labelledby="m-mr-days">
           <h2 id="m-mr-days" className="mr-section-title">

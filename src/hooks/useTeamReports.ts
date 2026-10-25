@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { APPROVAL_LABEL, REQUEST_TYPE_LABEL, formatMonth, monthKey, shortMonth, typeLabel, type ApprovalStatus, type Employee, type RequestType, type TeamReport } from '@/lib/teamReports'
 import { decide as recordDecision, reportsFor, useDecisions } from '@/lib/approvals'
 import { useAbsences } from '@/lib/absences'
+import { useMonthlySubmissions } from '@/lib/monthlySubmissions'
 import { missingReports } from '@/lib/submissions'
 import { reminderFor, sendReminders, useReminders, type Reminder } from '@/lib/reminders'
 import { downloadFile, toCsv } from '@/lib/exportCsv'
@@ -64,11 +65,12 @@ export function useTeamReports() {
   const [tab, setTabState] = useState<TeamTab>(TEAM_TABS[0].id)
   const decisions = useDecisions()
   const absences = useAbsences()
+  const submissions = useMonthlySubmissions()
   const reminders = useReminders()
   const [selected, setSelected] = useState<Set<string>>(() => new Set())
   const [announcement, setAnnouncement] = useState('')
 
-  const reports = useMemo<TeamReport[]>(() => reportsFor(month, decisions, absences), [month, decisions, absences])
+  const reports = useMemo<TeamReport[]>(() => reportsFor(month, decisions, absences, submissions), [month, decisions, absences, submissions])
   const missingAll = useMemo(() => missingReports(month, reports), [month, reports])
 
   // Filters shared by every view: department and search (month via `reports`).
