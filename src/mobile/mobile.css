@@ -7,7 +7,7 @@
 .m-app {
   --color-primary-action: var(--color-primary-action-mobile);
   --color-primary-action-hover: var(--color-primary-action-hover-mobile);
-  --shadow-primary-action: var(--shadow-sm); /* the blue glow is desktop-only */
+  --shadow-primary-action: none; /* mobile buttons are flat: no shadows (desktop keeps its own) */
   --color-link: var(--color-link-mobile);
   --color-link-underline: var(--color-link-underline-mobile);
 
@@ -166,8 +166,9 @@
   border: 0;
   border-radius: var(--radius-full);
   color: var(--color-text-on-dark);
+  position: relative; /* anchors the pulse rings */
   background: var(--orb-fill);
-  box-shadow: var(--orb-glow);
+  box-shadow: none; /* flat: the pulse rings replace the glow */
   font-family: inherit;
   font-size: var(--text-title-size);
   font-weight: var(--font-weight-bold);
@@ -224,6 +225,67 @@
 .punch-orb.is-loading {
   cursor: progress;
   opacity: 0.9;
+}
+
+/*
+ * Pulse (clock-in only): two soft green discs grow out from behind the orb and fade, half a cycle
+ * apart. Only the rings move — the button keeps its size and position. They sit behind the orb
+ * (the card is their stacking context), ignore taps and reach 10% of the orb's size past its edge (15–21px),
+ * within the gaps around it, so they never cover the clock or the manual-entry link and take no layout.
+ */
+.m-punch-card {
+  isolation: isolate;
+}
+
+.m-state-idle .punch-orb:not(:disabled)::before,
+.m-state-idle .punch-orb:not(:disabled)::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--orb-pulse-color, var(--color-primary-action));
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  animation: orb-pulse 2.8s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+}
+
+.m-state-idle .punch-orb:not(:disabled)::after {
+  animation-delay: 1.4s;
+}
+
+/* Dark theme: the same green, lifted so the rings read against the dark card. */
+:root[data-theme='dark'] .m-punch-card {
+  --orb-pulse-color: color-mix(in srgb, var(--palette-primary) 55%, #fff);
+}
+
+@keyframes orb-pulse {
+  0% {
+    opacity: 0.22;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+/* Steady while sending, and no continuous motion when reduced motion is requested. */
+.m-state-idle .punch-orb.is-loading::before,
+.m-state-idle .punch-orb.is-loading::after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-state-idle .punch-orb:not(:disabled)::before,
+  .m-state-idle .punch-orb:not(:disabled)::after {
+    animation: none;
+  }
+}
+
+/* Flat rounded actions on mobile: no shadows on buttons (focus rings use outlines, unaffected). */
+.m-app :is(.btn, .icon-btn, .mr-new-absence, .mr-today) {
+  box-shadow: none;
 }
 
 /* "הכנסה ידנית של שעה": outlined pill under the orb, keyboard icon at the start (right). */
