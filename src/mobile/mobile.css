@@ -11,13 +11,13 @@
   --color-link: var(--color-link-mobile);
   --color-link-underline: var(--color-link-underline-mobile);
 
-  /* Vertical rhythm of the attendance card: follows the viewport height (18px on a 667px phone, 24px from ~860px). */
+  /* Vertical rhythm of the attendance screen: follows the viewport height (18px on a 667px phone, 24px from ~860px). */
   --m-gap: clamp(var(--space-2), 2.8vh, var(--space-3)); /* fallback: browsers without dvh */
   --m-gap: clamp(var(--space-2), 2.8dvh, var(--space-3));
   /*
-   * Attendance card's main gaps (date → clock, clock → button, button group → location): grow
-   * with the screen height from 16px (short phones) to at most 56px, so the card is as tall as its
-   * content — no stretching and no empty bands on tall phones. ≈ 24px at 667px, 52px at 844px.
+   * Attendance main gaps (date → clock, clock → button, button group → location): grow
+   * with the screen height from 16px (short phones) to at most 56px, so the content is only as tall as it needs —
+   * no stretching and no empty bands on tall phones. ≈ 24px at 667px, 52px at 844px.
    */
   --m-space: clamp(var(--space-2), calc((100vh - 620px) * 0.16 + var(--space-2)), 56px); /* fallback: no dvh */
   --m-space: clamp(var(--space-2), calc((100dvh - 620px) * 0.16 + var(--space-2)), 56px);
@@ -88,12 +88,12 @@
 }
 
 /*
- * Attendance: the card is as tall as its content, with its main gaps scaled to the screen height
- * (--m-space, capped), and sits centered between the top bar and the bottom nav. Elements keep a
- * consistent rhythm on every phone instead of spreading out on tall screens.
+ * Attendance: the content (no card — directly on the page background) is as tall as it needs, with
+ * its main gaps scaled to the screen height (--m-space, capped), and sits centered between the top
+ * bar and the bottom nav. Elements keep a consistent rhythm on every phone instead of spreading out.
  */
 .m-main-fit {
-  justify-content: center; /* any height left over is shared above and below the card */
+  justify-content: center; /* any height left over is shared above and below the content */
 }
 
 /* The clock-in screen (few elements) gets the scaled gaps; the fuller working / summary states keep
@@ -113,9 +113,10 @@
 
 .m-punch-card {
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
-  padding: var(--space-3);
+  padding: var(--space-1) var(--space-1) var(--space-2); /* the page gutter frames it; no card around it */
 }
 
 .m-card-header {
@@ -131,7 +132,7 @@
   margin: 0;
 }
 
-/* State area between the card header and the location row. */
+/* State area between the header and the location row. */
 .m-state {
   margin-top: var(--m-gap);
 }
@@ -230,7 +231,7 @@
 /*
  * Pulse (דווח כניסה and דווח יציאה): two soft green discs grow out from behind the orb and fade, half a cycle
  * apart. Only the rings move — the button keeps its size and position. They sit behind the orb
- * (the card is their stacking context), ignore taps and take no layout. They reach 10% of the orb's size
+ * (the attendance section is their stacking context), ignore taps and take no layout. They reach 10% of the orb's size
  * past its edge (15–21px), but never more than the gap around it, so they don't touch the clock, the
  * working status or the manual-entry link on any screen.
  */
@@ -256,7 +257,7 @@
   animation-delay: 1.4s;
 }
 
-/* Dark theme: the same green, lifted so the rings read against the dark card. */
+/* Dark theme: the same green, lifted so the rings read against the dark page. */
 :root[data-theme='dark'] .m-punch-card {
   --orb-pulse-color: color-mix(in srgb, var(--palette-primary) 55%, #fff);
 }

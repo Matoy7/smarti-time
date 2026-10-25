@@ -1,6 +1,6 @@
 import { formatLongDate, toTimeOfDay } from '@/lib/time'
 import { useAttendanceFlow } from '@/hooks/useAttendanceFlow'
-import { Button, Card, PunchButton, TimeDisplay } from '@/components/ui'
+import { Button, PunchButton, TimeDisplay } from '@/components/ui'
 import { ClockIcon, KeyboardIcon, LoginIcon, LogoutIcon } from '@/components/icons'
 import { WorkingStatus } from '@/components/attendance/WorkingStatus'
 import { DaySummary } from '@/components/attendance/DaySummary'
@@ -20,7 +20,8 @@ export function MobileAttendance() {
 
   return (
     <MobileShell fit>
-      <Card className="m-punch-card" aria-labelledby="m-attendance-title">
+      {/* No card: the attendance content sits directly on the page background. */}
+      <section className="m-punch-card" aria-labelledby="m-attendance-title">
         <header className="m-card-header">
           {/* Page name stays available to screen readers; it is not shown visually. */}
           <h1 id="m-attendance-title" className="sr-only" data-page-title tabIndex={-1}>
@@ -68,7 +69,7 @@ export function MobileAttendance() {
 
         {/* The day summary does not show the location (mobile). */}
         {status !== 'summary' && <LocationRow variant="tile" />}
-      </Card>
+      </section>
 
       <p className="sr-only" role="status" aria-live="polite">
         {announcement}
