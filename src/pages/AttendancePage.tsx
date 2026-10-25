@@ -21,7 +21,7 @@ export function AttendancePage() {
   const busy = pending !== null
 
   return (
-    <div className="page">
+    <div className="page attendance-page">
       <header className="page-header">
         <p className="text-body-lg text-secondary">{formatLongDate(now)}</p>
         <h1 className="text-title" data-page-title tabIndex={-1}>
