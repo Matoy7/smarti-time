@@ -2,7 +2,7 @@ import { formatLongDate, toTimeOfDay } from '@/lib/time'
 import { useAttendanceFlow } from '@/hooks/useAttendanceFlow'
 import { Button, PunchButton, TimeDisplay } from '@/components/ui'
 import { ClockIcon, KeyboardIcon, LoginIcon, LogoutIcon } from '@/components/icons'
-import { WorkingStatus } from '@/components/attendance/WorkingStatus'
+import { WorkStats, durationOf, startStat } from '@/components/attendance/WorkingStatus'
 import { DaySummary } from '@/components/attendance/DaySummary'
 import { LocationRow } from '@/components/attendance/LocationRow'
 import { AttendanceFeedback } from '@/components/attendance/AttendanceFeedback'
@@ -47,7 +47,11 @@ export function MobileAttendance() {
 
           {status === 'working' && firstIn && (
             <>
-              <WorkingStatus firstIn={firstIn} now={now} workedMs={workedMs} titleId={TITLE_ID} />
+              {/* The exit time if clocking out now (the live clock), as the clock-in screen shows it. */}
+              <h2 id={TITLE_ID} className="m-clock-label text-body text-secondary">
+                שעת יציאה
+              </h2>
+              <TimeDisplay className="m-clock" value={time} dateTime={time} />
               <div className="m-punch-actions">
                 <PunchButton onClick={clockOut} loading={pending === 'out'} icon={<LogoutIcon size={52} strokeWidth={1.5} />}>
                   {pending === 'out' ? 'מדווח…' : 'דווח יציאה'}
@@ -69,6 +73,14 @@ export function MobileAttendance() {
 
         {/* The day summary does not show the location (mobile). */}
         {status !== 'summary' && <LocationRow variant="tile" />}
+
+        {/* While working: start time and the time worked so far, under the location. */}
+        {status === 'working' && firstIn && (
+          <WorkStats
+            className="m-work-stats"
+            stats={[startStat(firstIn), { label: 'משך זמן עבודה', icon: <ClockIcon size={16} />, ...durationOf(workedMs) }]}
+          />
+        )}
       </section>
 
       <p className="sr-only" role="status" aria-live="polite">

@@ -147,6 +147,19 @@
   margin-top: var(--m-gap);
 }
 
+/* Working: "שעת יציאה" over the live clock (in place of the elapsed timer). */
+.m-clock-label {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Working: start time + time worked, under the location row and as wide as it. */
+.m-work-stats {
+  width: auto;
+  align-self: stretch;
+  margin-top: var(--space-1-5);
+}
+
 /*
  * Hover styles below sit in @media (hover: hover): on touch screens :hover sticks to the last
  * tapped element, which would leave a tab or the orb highlighted after a tap.
